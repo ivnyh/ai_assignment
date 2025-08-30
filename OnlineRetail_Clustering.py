@@ -349,7 +349,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 # --- Step 1: Load your RFM dataset ---
-rfm = pd.read_csv(r"C:\Users\IvanYeoh\rfm.csv")
+rfm = pd.read_csv("rfm.csv")
 
 # --- Step 2: Scale Recency, Frequency, Monetary ---
 scaler = StandardScaler()
@@ -1209,6 +1209,7 @@ styled_summary
 
 
 # In[ ]:
+
 
 
 

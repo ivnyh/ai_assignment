@@ -405,7 +405,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 
 # === Load RFM data ===
-rfm = pd.read_csv(r"C:\\Users\\IvanYeoh\\rfm.csv")
+rfm = pd.read_csv("rfm.csv")
 
 # Keep only numeric columns (R, F, M)
 features = rfm[['Recency', 'Frequency', 'Monetary']]
@@ -1209,6 +1209,7 @@ styled_summary
 
 
 # In[ ]:
+
 
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-#     # BMCS2003 Artificial Intelligence
+# # BMCS2003 Artificial Intelligence
 
 # | Name | Student ID |
 # | --- | --- |
@@ -11,17 +11,16 @@
 # 
 # 
 
-# In[1]:
+# # Load Dataset
 
+# In[10]:
 
-# ===============================
-# Step 1: Load Dataset
-# ===============================
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
 
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.cluster import KMeans, MeanShift, DBSCAN
@@ -35,9 +34,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_colwidth', None)
 
 # Load Excel dataset
-df = pd.read_excel("Online Retail.xlsx")
-
-
+df = pd.read_excel(r"C:\Users\IvanYeoh\Online Retail.xlsx")
 
 # Quick check
 print("Dataset shape:", df.shape)
@@ -45,12 +42,10 @@ print(df.head())
 print(df.info())
 
 
+# # Drop unwanted data, encode data, inspect datatypes & missing values
+
 # In[3]:
 
-
-# ------------------------------
-# Step 2: Drop unwanted data, encode data, inspect datatypes & missing values
-# ------------------------------
 
 # 1. Drop rows with missing CustomerID
 df = df.dropna(subset=['CustomerID'])
@@ -83,17 +78,13 @@ print(df.isnull().sum())
 # In[5]:
 
 
-#cleaned dataaset
+#cleaned dataset
 df.head()
 
 
-# In[7]:
+# # Calculate RFM(Recency, Frequency, Monetary) values for each customer
 
-
-# Calculate RFM(Recency, Frequency, Monetary) values for each customer
-
-
-# In[8]:
+# In[11]:
 
 
 import pandas as pd
@@ -121,11 +112,7 @@ print("RFM Dataset Shape:", rfm.shape)
 print(rfm.head())
 
 
-# In[9]:
-
-
-#Data Visualization(Heatmap, Pairplot)
-
+# # Data Visualization(Heatmap, Pairplot)
 
 # In[10]:
 
@@ -145,11 +132,7 @@ plt.suptitle("Pairplot of RFM Features", y=1.02)
 plt.show()
 
 
-# In[11]:
-
-
-#Feature Scaling
-
+# # Feature Scaling
 
 # In[12]:
 
@@ -169,17 +152,9 @@ rfm_scaled = pd.DataFrame(rfm_scaled, columns=['Recency','Frequency','Monetary']
 print(rfm_scaled.head())
 
 
-# In[13]:
+# # K-Means Algorithm
 
-
-#K-Means Algorithm
-
-
-# In[14]:
-
-
-#Elbow method
-
+# ## Elbow Method
 
 # In[15]:
 
@@ -187,29 +162,30 @@ print(rfm_scaled.head())
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 
-# Try k values from 2 to 10
+# Range of k values to test
+K = range(2, 11)  
 wcss = []
-K = range(2, 11)
 
 for k in K:
     kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-    kmeans.fit(rfm_scaled)  # rfm_scaled is your scaled RFM dataframe
+    kmeans.fit(rfm_scaled)  # rfm_scaled = your scaled dataset
     wcss.append(kmeans.inertia_)
 
-# Plot the elbow graph
+# --- Plot ---
 plt.figure(figsize=(8,5))
-plt.plot(K, wcss, 'bo-')
+plt.plot(K, wcss, 'bo-', linewidth=2, markersize=8)
 plt.xlabel('Number of clusters (k)')
-plt.ylabel('WCSS (Inertia)')
+plt.ylabel('WCSS (Within-Cluster Sum of Squares)')
 plt.title('Elbow Method for Optimal k')
+plt.xticks(K)
+plt.grid(True)
+
+
+
 plt.show()
 
 
-# In[50]:
-
-
-#Silhouette Score
-
+# ## Silhouette Score
 
 # In[42]:
 
@@ -244,11 +220,7 @@ plt.show()
 print(f"Best Silhouette result → k = {best_k_sil}, Silhouette = {best_sil:.4f}")
 
 
-# In[41]:
-
-
-#Calculate and find best Calinski Harabasz Score for Kmean
-
+# ## Calculate and find best Calinski Harabasz Score for Kmean
 
 # In[38]:
 
@@ -289,11 +261,7 @@ print(f"Best CHI result → k = {best_k_ch}, CHI = {best_ch:.4f}")
 
 
 
-# In[39]:
-
-
-#Calculate and find best Davies-Bouldin Index for Kmean
-
+# ## Calculate and find best Davies-Bouldin Index for Kmean
 
 # In[40]:
 
@@ -333,14 +301,12 @@ plt.show()
 print(f"Best DBI result → k = {best_k_dbi}, DBI = {best_dbi:.4f}")
 
 
-# In[43]:
+# ## Visualize Graph
+
+# In[35]:
 
 
-#Visualize Cluster Graph
-
-
-# In[29]:
-
+# --- Cell 1: 3D Cluster Visualization ---
 
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -348,21 +314,22 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-# --- Step 1: Load your RFM dataset ---
-rfm = pd.read_csv("rfm.csv")
+# Load RFM dataset
+rfm = pd.read_csv(r"C:\Users\IvanYeoh\rfm.csv")
 
-# --- Step 2: Scale Recency, Frequency, Monetary ---
+# Scale Recency, Frequency, Monetary
 scaler = StandardScaler()
 rfm_scaled = pd.DataFrame(
     scaler.fit_transform(rfm[['Recency', 'Frequency', 'Monetary']]),
     columns=['Recency', 'Frequency', 'Monetary']
 )
 
-# --- Step 3: KMeans clustering with k=4 ---
-kmeans_4 = KMeans(n_clusters=4, random_state=42, n_init=10)
-rfm['Cluster'] = kmeans_4.fit_predict(rfm_scaled[['Recency', 'Frequency', 'Monetary']])
+# KMeans with k=2 (best Silhouette)
+best_k = 2
+kmeans_best = KMeans(n_clusters=best_k, random_state=42, n_init=10)
+rfm['Cluster'] = kmeans_best.fit_predict(rfm_scaled[['Recency', 'Frequency', 'Monetary']])
 
-# --- Step 4: 3D Visualization (scaled values) ---
+# 3D scatter plot
 fig = plt.figure(figsize=(8, 6))
 ax = fig.add_subplot(111, projection='3d')
 
@@ -375,51 +342,43 @@ scatter = ax.scatter(
     s=40, alpha=0.7
 )
 
-# Axis labels
-ax.set_xlabel('Recency (scaled)', labelpad=10)
-ax.set_ylabel('Frequency (scaled)', labelpad=10)
-ax.set_zlabel('Monetary (scaled)', labelpad=10)
+ax.set_xlabel('Recency (scaled)')
+ax.set_ylabel('Frequency (scaled)')
+ax.set_zlabel('Monetary (scaled)')
+ax.set_title(f"3D Cluster Visualization (k={best_k}, Silhouette=0.8993)")
 
-# Title
-ax.set_title("3D Cluster Visualization (k=4)")
-
-# Cluster legend
 plt.legend(*scatter.legend_elements(), title="Clusters", bbox_to_anchor=(1.05, 1), loc='upper left')
-
 plt.tight_layout()
 plt.show()
 
 
-# In[ ]:
+# ## K-Means Summary
+
+# In[36]:
 
 
-#K-Means Summary
-
-
-# In[34]:
-
+# --- Cell 2: KMeans Cluster Summary ---
 
 import pandas as pd
-import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 
-# === Load RFM data ===
-rfm = pd.read_csv("rfm.csv")
+# Load RFM dataset
+rfm = pd.read_csv(r"C:\Users\IvanYeoh\rfm.csv")
 
-# Keep only numeric columns (R, F, M)
+# Keep only numeric columns
 features = rfm[['Recency', 'Frequency', 'Monetary']]
 
 # Scale features
 scaler = StandardScaler()
 scaled_features = scaler.fit_transform(features)
 
-# === KMeans with chosen k ===
-best_k = 4   # <-- set your optimal number of clusters
-kmeans = KMeans(n_clusters=best_k, random_state=42, n_init=10)
-rfm['Cluster'] = kmeans.fit_predict(scaled_features)
+# KMeans with k=2 (best Silhouette)
+best_k = 2
+kmeans_summary = KMeans(n_clusters=best_k, random_state=42, n_init=10)
+rfm['Cluster'] = kmeans_summary.fit_predict(scaled_features)
 
-# === Cluster Summary Table ===
+# Cluster summary table
 cluster_summary = rfm.groupby('Cluster').agg({
     'Recency': 'mean',
     'Frequency': 'mean',
@@ -427,22 +386,20 @@ cluster_summary = rfm.groupby('Cluster').agg({
     'Cluster': 'count'
 }).rename(columns={'Cluster': 'Count'})
 
-# Round for readability
 cluster_summary = cluster_summary.round(2)
 
-# === Add Descriptions ===
+# Add descriptive labels
 overall_mean = rfm[['Recency', 'Frequency', 'Monetary']].mean()
 
 def describe_cluster(row, overall_mean):
     desc = []
-    # Recency (lower = better)
+    # Recency
     if row['Recency'] < overall_mean['Recency'] * 0.7:
         desc.append("Recent buyers")
     elif row['Recency'] > overall_mean['Recency'] * 1.3:
         desc.append("Inactive / Churn risk")
     else:
         desc.append("Average recency")
-
     # Frequency
     if row['Frequency'] > overall_mean['Frequency'] * 1.3:
         desc.append("Frequent buyers")
@@ -450,7 +407,6 @@ def describe_cluster(row, overall_mean):
         desc.append("Rare buyers")
     else:
         desc.append("Moderate frequency")
-
     # Monetary
     if row['Monetary'] > overall_mean['Monetary'] * 1.3:
         desc.append("High spenders")
@@ -458,32 +414,23 @@ def describe_cluster(row, overall_mean):
         desc.append("Low spenders")
     else:
         desc.append("Average spenders")
-
     return ", ".join(desc)
 
 cluster_summary['Description'] = cluster_summary.apply(
     lambda row: describe_cluster(row, overall_mean), axis=1
 )
 
-# === Styled Output ===
+# Styled output
 styled_summary = cluster_summary.style.set_table_styles(
     [{'selector': 'th', 'props': [('font-weight', 'bold')]}]
-).set_caption("📊 KMeans Cluster Summary with Descriptions")
+).set_caption(f"📊 KMeans Cluster Summary with k={best_k}, Silhouette=0.8993")
 
 styled_summary
 
 
-# In[ ]:
+# # Mean Shift
 
-
-#Mean Shift
-
-
-# In[14]:
-
-
-# Find the best bandwidth base on result of the clusters formed
-
+# ## Find the best bandwidth base on result of the clusters formed
 
 # In[19]:
 
@@ -517,6 +464,8 @@ for bw in candidates:
 
 print(f"\n✅ Chosen bandwidth: {best_bw:.3f} (Silhouette={best_sil:.4f})")
 
+
+# ## Silhouette Score
 
 # In[18]:
 
@@ -563,11 +512,7 @@ print("\nBest Silhouette Score:", sil_scores[best_sil_idx],
       "Clusters=", n_clusters_sil[best_sil_idx])
 
 
-# In[22]:
-
-
-#Calculate and find best Calinski–Harabasz score for Mean Shift
-
+# ## Calculate and find best Calinski–Harabasz score for Mean Shift
 
 # In[19]:
 
@@ -605,11 +550,7 @@ print("\nBest CH Score:", ch_scores[best_ch],
       "Clusters=", n_clusters_ch[best_ch])
 
 
-# In[26]:
-
-
-#Calculate and find best Davies-Bouldin Index for Mean Shift
-
+# ## Calculate and find best Davies-Bouldin Index for Mean Shift
 
 # In[20]:
 
@@ -647,11 +588,7 @@ print("\nBest DBI Score:", db_scores[best_db],
       "Clusters=", n_clusters_db[best_db])
 
 
-# In[33]:
-
-
-#Visualize Clusters
-
+# ## Visualize Graph
 
 # In[8]:
 
@@ -724,11 +661,7 @@ plt.show()
 #  X=Recency           Y=Frequency            Z=Monetary
 
 
-# In[35]:
-
-
-#MeanShift Summary
-
+# ## MeanShift Summary
 
 # In[36]:
 
@@ -786,17 +719,9 @@ styled_summary = cluster_summary.style.set_table_styles(
 styled_summary
 
 
-# In[12]:
+# # DBSCAN
 
-
-#DBSCAN
-
-
-# In[37]:
-
-
-#K-Distance Graph
-
+# ## K-Distance Graph
 
 # In[38]:
 
@@ -829,11 +754,7 @@ plt.grid(True)
 plt.show()
 
 
-# In[39]:
-
-
-#EPS scan
-
+# ## EPS scan
 
 # In[40]:
 
@@ -862,11 +783,7 @@ results_df = pd.DataFrame(results, columns=["eps", "Clusters", "Noise Points"])
 results_df
 
 
-# In[ ]:
-
-
-#Silhouette Score
-
+# ## Silhouette Score
 
 # In[21]:
 
@@ -918,11 +835,7 @@ print(f"\nBest Silhouette Score: {sil_scores[best_idx]:.4f} "
       f"at eps={valid_eps[best_idx]:.2f}, Clusters={n_clusters_list[best_idx]}")
 
 
-# In[45]:
-
-
-#Calculate and find best Calinski Harabasz Score for DBSCAN
-
+# ## Calculate and find best Calinski Harabasz Score for DBSCAN
 
 # In[46]:
 
@@ -970,11 +883,7 @@ if best_eps:
     print(f"Best CHI → eps = {best_eps}, CHI = {best_chi:.4f}")
 
 
-# In[47]:
-
-
-#Calculate and find best Davies-Bouldin Index for DBSCAN
-
+# ## Calculate and find best Davies-Bouldin Index for DBSCAN
 
 # In[48]:
 
@@ -1024,90 +933,27 @@ if best_eps:
     print(f"Best DBI → eps = {best_eps}, DBI = {best_dbi:.4f}")
 
 
-# In[49]:
+# ## Visualize Graph
+
+# In[38]:
 
 
-#Visualize Graph
-
-
-# In[24]:
-
-
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from sklearn.cluster import DBSCAN
-import numpy as np
-
-# === DBSCAN with chosen eps (0.6) and min_samples (5) ===
-dbscan = DBSCAN(eps=0.6, min_samples=5)
-labels = dbscan.fit_predict(rfm_scaled)  # use scaled RFM features
-
-# Assign cluster labels back to RFM dataframe
-rfm['Cluster'] = labels
-n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-print(f"Clusters formed (excluding noise): {n_clusters}")
-
-# --- 3D Scatter Plot ---
-fig = plt.figure(figsize=(10, 8))
-ax = fig.add_subplot(111, projection='3d')
-
-# Separate noise from actual clusters
-mask_noise = labels == -1
-mask_clusters = labels != -1
-
-# Plot clusters
-scatter = ax.scatter(
-    rfm_scaled[mask_clusters,0], 
-    rfm_scaled[mask_clusters,1], 
-    rfm_scaled[mask_clusters,2],
-    c=labels[mask_clusters], cmap='tab20', s=50, alpha=0.7
-)
-
-# Plot noise points in black
-ax.scatter(
-    rfm_scaled[mask_noise,0], 
-    rfm_scaled[mask_noise,1], 
-    rfm_scaled[mask_noise,2],
-    c='black', s=50, alpha=0.5, label='Noise'
-)
-
-ax.set_xlabel("Recency (scaled)")
-ax.set_ylabel("Frequency (scaled)")
-ax.set_zlabel("Monetary (scaled)")
-ax.set_title(f"DBSCAN Clustering (eps=0.6, min_samples=5)")
-
-plt.colorbar(scatter, ax=ax, shrink=0.5, label='Cluster')
-plt.legend()
-plt.show()
-
-
-# In[50]:
-
-
-#DBSCAN Summary
-
-
-# In[27]:
-
+# --- Cell 1: DBSCAN 3D Visualization ---
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
-# ==============================
-# 1️⃣ DBSCAN Clustering
-# ==============================
-# Use scaled RFM features
-X = rfm_scaled  # scaled RFM features from earlier
+# Assume rfm_scaled is already available from previous scaling
 
-# Set DBSCAN parameters
-eps = 0.6
+# DBSCAN parameters for best Silhouette
+eps = 3.20
 min_samples = 5
 
 # Fit DBSCAN
 dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-db_labels = dbscan.fit_predict(X)
+db_labels = dbscan.fit_predict(rfm_scaled)
 
 # Assign cluster labels back to RFM dataframe
 rfm['Cluster'] = db_labels
@@ -1115,9 +961,7 @@ n_clusters = len(set(db_labels)) - (1 if -1 in db_labels else 0)
 print(f"Clusters formed (excluding noise): {n_clusters}")
 print(f"Noise points: {(db_labels == -1).sum()}")
 
-# ==============================
-# 2️⃣ 3D Scatter Plot
-# ==============================
+# 3D Scatter Plot
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 
@@ -1127,32 +971,37 @@ mask_clusters = db_labels != -1
 
 # Plot clusters
 scatter = ax.scatter(
-    X[mask_clusters,0],
-    X[mask_clusters,1],
-    X[mask_clusters,2],
+    rfm_scaled[mask_clusters,0],
+    rfm_scaled[mask_clusters,1],
+    rfm_scaled[mask_clusters,2],
     c=db_labels[mask_clusters], cmap='tab20', s=50, alpha=0.7
 )
 
 # Plot noise points in black
 ax.scatter(
-    X[mask_noise,0],
-    X[mask_noise,1],
-    X[mask_noise,2],
+    rfm_scaled[mask_noise,0],
+    rfm_scaled[mask_noise,1],
+    rfm_scaled[mask_noise,2],
     c='black', s=50, alpha=0.5, label='Noise'
 )
 
 ax.set_xlabel("Recency (scaled)")
 ax.set_ylabel("Frequency (scaled)")
 ax.set_zlabel("Monetary (scaled)")
-ax.set_title(f"DBSCAN Clustering (eps={eps}, min_samples={min_samples})")
+ax.set_title(f"DBSCAN Clustering (eps={eps}, min_samples={min_samples}, Silhouette=0.8986)")
 
 plt.colorbar(scatter, ax=ax, shrink=0.5, label='Cluster')
 plt.legend()
 plt.show()
 
-# ==============================
-# 3️⃣ DBSCAN Cluster Summary
-# ==============================
+
+# ## DBSCAN Summary
+
+# In[39]:
+
+
+# --- Cell 2: DBSCAN Cluster Summary ---
+
 # Aggregate cluster statistics
 cluster_summary = rfm.groupby('Cluster').agg({
     'Recency': 'mean',
@@ -1203,17 +1052,136 @@ cluster_summary['Description'] = cluster_summary.apply(lambda row: describe_clus
 # Styled display
 styled_summary = cluster_summary.style.set_table_styles(
     [{'selector': 'th', 'props': [('font-weight', 'bold')]}]
-).set_caption(f"📊 DBSCAN Cluster Summary (eps={eps}, min_samples={min_samples})")
+).set_caption(f"📊 DBSCAN Cluster Summary (eps={eps}, min_samples={min_samples}, Silhouette=0.8986)")
 
 styled_summary
 
 
+# # Algorithm Comparison
+
+# In[52]:
+
+
+import pandas as pd
+import time
+from sklearn.cluster import KMeans, MeanShift, DBSCAN
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+
+# ==============================
+# Placeholder for results
+# ==============================
+comparison_data = []
+
+# Ensure rfm_scaled is a NumPy array
+X = rfm_scaled.values if hasattr(rfm_scaled, "values") else rfm_scaled
+
+# --- 1️⃣ KMeans ---
+kmeans_k = 2
+best_silhouette_kmeans = 0.8993  # your reported best silhouette
+
+start_time = time.time()
+kmeans = KMeans(n_clusters=kmeans_k, random_state=42, n_init=10)
+kmeans_labels = kmeans.fit_predict(X)
+kmeans_time = time.time() - start_time
+
+comparison_data.append({
+    'Algorithm': 'KMeans',
+    'Parameter': f'k = {kmeans_k}',
+    'Clusters': len(set(kmeans_labels)),
+    'Silhouette': best_silhouette_kmeans,
+    'CHI': calinski_harabasz_score(X, kmeans_labels),
+    'DBI': davies_bouldin_score(X, kmeans_labels),
+    'Noise': 0,
+    'Time(s)': round(kmeans_time, 4)
+})
+
+# --- 2️⃣ MeanShift ---
+mean_bw = 1.566
+best_silhouette_meanshift = 0.6592986631898874
+
+start_time = time.time()
+ms = MeanShift(bandwidth=mean_bw, bin_seeding=True)
+ms_labels = ms.fit_predict(X)
+ms_time = time.time() - start_time
+
+comparison_data.append({
+    'Algorithm': 'MeanShift',
+    'Parameter': f'Bandwidth = {mean_bw}',
+    'Clusters': len(set(ms_labels)),
+    'Silhouette': best_silhouette_meanshift,
+    'CHI': calinski_harabasz_score(X, ms_labels),
+    'DBI': davies_bouldin_score(X, ms_labels),
+    'Noise': 0,
+    'Time(s)': round(ms_time, 4)
+})
+
+# --- 3️⃣ DBSCAN ---
+dbscan_eps = 3.2
+dbscan_min_samples = 5
+best_silhouette_dbscan = 0.8986
+
+start_time = time.time()
+db = DBSCAN(eps=dbscan_eps, min_samples=dbscan_min_samples)
+db_labels = db.fit_predict(X)
+db_time = time.time() - start_time
+db_noise = list(db_labels).count(-1)
+
+n_clusters_db = len(set(db_labels)) - (1 if -1 in db_labels else 0)
+comparison_data.append({
+    'Algorithm': 'DBSCAN',
+    'Parameter': f'eps = {dbscan_eps}, min_samples = {dbscan_min_samples}',
+    'Clusters': n_clusters_db,
+    'Silhouette': best_silhouette_dbscan,
+    'CHI': calinski_harabasz_score(X, db_labels) if n_clusters_db > 1 else 'N/A',
+    'DBI': davies_bouldin_score(X, db_labels) if n_clusters_db > 1 else 'N/A',
+    'Noise': db_noise,
+    'Time(s)': round(db_time, 4)
+})
+
+# ==============================
+# Create comparison table
+# ==============================
+comparison_df = pd.DataFrame(comparison_data)
+display(comparison_df)
+
+
+# In[53]:
+
+
+import matplotlib.pyplot as plt
+
+# Set plot style
+plt.style.use('ggplot')
+
+# Create a figure with subplots
+fig, axs = plt.subplots(1, 3, figsize=(18, 5))
+
+# Plot Silhouette Score
+axs[0].bar(comparison_df['Algorithm'], comparison_df['Silhouette'], color='skyblue')
+axs[0].set_title('Silhouette Score')
+axs[0].set_ylabel('Score')
+
+# Plot CHI Score
+axs[1].bar(comparison_df['Algorithm'], comparison_df['CHI'], color='lightgreen')
+axs[1].set_title('Calinski-Harabasz Index (CHI)')
+axs[1].set_ylabel('Score')
+
+# Plot DBI Score (lower is better)
+axs[2].bar(comparison_df['Algorithm'], comparison_df['DBI'], color='salmon')
+axs[2].set_title('Davies-Bouldin Index (DBI)')
+axs[2].set_ylabel('Score')
+
+# Improve layout
+for ax in axs:
+    ax.set_xlabel('Algorithm')
+    ax.set_xticks(range(len(comparison_df['Algorithm'])))
+    ax.set_xticklabels(comparison_df['Algorithm'], rotation=45)
+
+plt.tight_layout()
+plt.show()
+
+
 # In[ ]:
-
-
-
-
-
 
 
 

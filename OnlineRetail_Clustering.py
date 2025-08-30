@@ -35,7 +35,8 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_colwidth', None)
 
 # Load Excel dataset
-df = pd.read_excel(r"C:\Users\IvanYeoh\Online Retail.xlsx")
+df = pd.read_excel("ai_assignment/Online_Retail.xlsx")
+
 
 # Quick check
 print("Dataset shape:", df.shape)
@@ -1207,6 +1208,7 @@ styled_summary
 
 
 # In[ ]:
+
 
 
 
